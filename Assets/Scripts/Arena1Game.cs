@@ -7,6 +7,7 @@ public class Arena1Game : NetworkBehaviour
 {
     public Player playerPrefab;
     public Camera arenaCamera;
+    public Player hostPrefab;
 
     private int positionIndex = 0;
     private Vector3[] startPositions = new Vector3[]
@@ -59,7 +60,11 @@ public class Arena1Game : NetworkBehaviour
     private void SpawnPlayers() { 
         foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
         {
-            Player playerSpawn = Instantiate(playerPrefab, NextPosition(), Quaternion.identity);
+            Player prefab = playerPrefab;
+            if(clientId == NetworkManager.LocalClientId) {
+                prefab = hostPrefab;
+            }
+            Player playerSpawn = Instantiate(prefab, NextPosition(), Quaternion.identity);
             playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
             playerSpawn.playerColorNetVar.Value = NextColor();
         }

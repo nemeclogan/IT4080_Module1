@@ -5,20 +5,37 @@ using Unity.Netcode;
 
 public class Player : NetworkBehaviour
 {
-    public float movementSpeed = 50f;
-    public float rotationSpeed = 130f;
     public NetworkVariable<Color> playerColorNetVar = new NetworkVariable<Color>(Color.red);
 
+    public float movementSpeed = 50f;
+    public float rotationSpeed = 130f;
     private Camera playerCamera;
     private GameObject Body;
 
-    private void Start() {
+    private void NetworkInit()
+    {
+        Body = transform.Find("Body").gameObject;
+
         playerCamera = transform.Find("Camera").GetComponent<Camera>();
         playerCamera.enabled = IsOwner;
         playerCamera.GetComponent<AudioListener>().enabled = IsOwner;
 
-        Body = transform.Find("Body").gameObject;
         ApplyColor();
+        playerColorNetVar.OnValueChanged += OnPlayerColorChanged;
+    }
+
+    private void Awake() {
+        NetworkHelper.Log(this, "Awake");
+    }
+
+    void Start() {
+        NetworkHelper.Log(this, "Start");
+    }
+
+    public override void OnNetworkSpawn() {
+        NetworkHelper.Log(this, "OnNetworkSpawn");
+        NetworkInit();
+        base.OnNetworkSpawn();
     }
 
     private void Update() {
@@ -37,7 +54,12 @@ public class Player : NetworkBehaviour
         }
     }
     
+    public void OnPlayerColorChanged(Color previous, Color current) {
+        ApplyColor();
+    }
+
     private void ApplyColor() {
+        NetworkHelper.Log(this, "Applying color {playerColorNetVar.Value");
         Body.GetComponent<MeshRenderer>().material.color = playerColorNetVar.Value;
     }
 
@@ -46,6 +68,8 @@ public class Player : NetworkBehaviour
     {
         transform.Translate(movement);
         transform.Rotate(rotation);
+        // #1. transform.position = new Vector3(Random.Range(-10, 10), 0);
+        //Not sure how to limit movement, still confused
     }
 
 
