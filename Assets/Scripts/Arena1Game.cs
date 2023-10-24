@@ -9,6 +9,8 @@ public class Arena1Game : NetworkBehaviour
     public Camera arenaCamera;
     public Player hostPrefab;
 
+    private NetworkedPlayers networkedPlayers;
+
     private int positionIndex = 0;
     private Vector3[] startPositions = new Vector3[]
     {
@@ -18,24 +20,18 @@ public class Arena1Game : NetworkBehaviour
         new Vector3(0, 2, -4)
     };
 
-    private int colorIndex = 0;
-    private Color[] playerColors = new Color[] {
-        Color.blue,
-        Color.green,
-        Color.yellow,
-        Color.magenta,
-    };
-
-
     // Start is called before the first frame update
     void Start()
     {
         arenaCamera.enabled = !IsClient;
         arenaCamera.GetComponent<AudioListener>().enabled = !IsClient;
-        if (IsServer)
-        {
+
+        networkedPlayers = GameObject.Find("NetworkedPlayers").GetComponent<networkedPlayers>();
+        NetworkHelper.Log($"Players = {networkedPlayers.allNetPlayers.Count}");
+
+        if (IsServer) {
             SpawnPlayers();
-        } 
+        }
     }
 
     private Vector3 NextPosition() {
@@ -47,18 +43,8 @@ public class Arena1Game : NetworkBehaviour
         return pos;
     }
 
-    private Color NextColor() {
-        Color newColor = playerColors[colorIndex];
-        colorIndex += 1;
-        if (colorIndex > playerColors.Length - 1)
-        {
-            colorIndex = 0;
-        }
-        return newColor;
-    }
-
     private void SpawnPlayers() { 
-        foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
+        foreach(NetworkPlayerInfo info in networkedPlayers.allNetPlayers)
         {
             Player prefab = playerPrefab;
             //if(clientId == NetworkManager.LocalClientId) {
@@ -66,7 +52,7 @@ public class Arena1Game : NetworkBehaviour
             //}
             Player playerSpawn = Instantiate(prefab, NextPosition(), Quaternion.identity);
             playerSpawn.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
-            playerSpawn.playerColorNetVar.Value = NextColor();
+            playerSpawn.playerColorNetVar.Value = info.color;
         }
     }
 
