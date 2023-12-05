@@ -9,7 +9,15 @@ public class Arena1Game : NetworkBehaviour
     public Camera arenaCamera;
     public Player hostPrefab;
 
-    private NetworkedPlayers networkedPlayers;
+    //private NetworkedPlayers networkedPlayers;
+
+    private int colorIndex = 0;
+    private Color[] playerColors = new Color[] {
+        Color.blue,
+        Color.green,
+        Color.yellow,
+        Color.magenta,
+    };
 
     private int positionIndex = 0;
     private Vector3[] startPositions = new Vector3[]
@@ -26,12 +34,21 @@ public class Arena1Game : NetworkBehaviour
         arenaCamera.enabled = !IsClient;
         arenaCamera.GetComponent<AudioListener>().enabled = !IsClient;
 
-        networkedPlayers = GameObject.Find("NetworkedPlayers").GetComponent<networkedPlayers>();
-        NetworkHelper.Log($"Players = {networkedPlayers.allNetPlayers.Count}");
+        //networkedPlayers = GameObject.Find("NetworkedPlayers").GetComponent<networkedPlayers>();
+        //NetworkHelper.Log($"Players = {networkedPlayers.allNetPlayers.Count}");
 
         if (IsServer) {
             SpawnPlayers();
         }
+    }
+
+    private Color NextColor() {
+        Color newColor = playerColors[colorIndex];
+        colorIndex += 1;
+        if(colorIndex > playerColors.Length - 1){
+            colorIndex = 0;
+        }
+        return newColor;
     }
 
     private Vector3 NextPosition() {
@@ -44,7 +61,8 @@ public class Arena1Game : NetworkBehaviour
     }
 
     private void SpawnPlayers() { 
-        foreach(NetworkPlayerInfo info in networkedPlayers.allNetPlayers)
+        foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
+            //(NetworkPlayerInfo info in networkedPlayers.allNetPlayers)
         {
             Player prefab = playerPrefab;
             //if(clientId == NetworkManager.LocalClientId) {
@@ -52,7 +70,7 @@ public class Arena1Game : NetworkBehaviour
             //}
             Player playerSpawn = Instantiate(prefab, NextPosition(), Quaternion.identity);
             playerSpawn.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
-            playerSpawn.playerColorNetVar.Value = info.color;
+            playerSpawn.playerColorNetVar.Value = NextColor();
         }
     }
 

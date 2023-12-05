@@ -22,20 +22,20 @@ public class Lobby : NetworkBehaviour
             lobbyUi.OnReadyToggled += ClientOnReadyToggled;
             NetworkManager.OnClientDisconnectCallback += ClientOnClientDisconnect;
         }
-        lobbyUi.OnChangeNameClicked += OnChangeNameClicked;
+        //lobbyUi.OnChangeNameClicked += OnChangeNameClicked;
     }
 
-    private void OnChangeNameClicked(string newValue) {
-        UpdatePlayerNameServerRpc(newValue);
-    }
+    //private void OnChangeNameClicked(string newValue) {
+        //UpdatePlayerNameServerRpc(newValue);
+    //}
 
-    private void PopulateMyInfo() {
-        NetworkPlayerInfo myInfo = networkedPlayers.GetMyPlayerInfo();
-        if (myInfo.clientId != ulong.MaxValue)
-        {
-            lobbyUi.SetPlayerName(myInfo.playerName.ToString());
-        }
-    }
+    //private void PopulateMyInfo() {
+        //NetworkPlayerInfo myInfo = networkedPlayers.GetMyPlayerInfo();
+        //if (myInfo.clientId != ulong.MaxValue)
+        //{
+            //lobbyUi.SetPlayerName(myInfo.playerName.ToString());
+        //}
+    //}
 
     private void ServerPopulateCards()
     {
@@ -46,7 +46,7 @@ public class Lobby : NetworkBehaviour
             pc.ready = info.ready;
             pc.clientId = info.clientId;
             pc.color = info.color;
-            pc.playerName = info.playerName.ToString();
+            //pc.playerName = info.playerName.ToString();
             if(info.clientId == NetworkManager.LocalClientId) {
                 pc.ShowKick(false);
             } else {
@@ -55,6 +55,7 @@ public class Lobby : NetworkBehaviour
             pc.OnKickClicked += ServerOnKickClicked;
             pc.UpdateDisplay();
         }
+        //PopulateMyInfo();
     }
 
     private void ServerStartClicked() {
@@ -72,10 +73,11 @@ public class Lobby : NetworkBehaviour
             pc.ready = info.ready;
             pc.clientId = info.clientId;
             pc.color = info.color;
-            pc.playerName = info.playerName.ToString();
+            //pc.playerName = info.playerName.ToString();
             pc.ShowKick(false);
             pc.UpdateDisplay();
         }
+        //PopulateMyInfo();
     }
 
     private void ClientOnReadyToggled(bool newValue) {
@@ -84,7 +86,7 @@ public class Lobby : NetworkBehaviour
 
     private void ServerNetPlayersChanged(NetworkListEvent<NetworkPlayerInfo> changeEvent) {
         ServerPopulateCards();
-        PopulateMyInfo();
+        //PopulateMyInfo();
         lobbyUi.EnableStart(networkedPlayers.AllPlayersReady());
     }
 
@@ -94,7 +96,7 @@ public class Lobby : NetworkBehaviour
 
     private void ClientNetPlayersChanged(NetworkListEvent<NetworkPlayerInfo> changeEvent) {
         ClientPopulateCards();
-        PopulateMyInfo();
+        //PopulateMyInfo();
     }
 
     private void ClientOnClientDisconnect(ulong clientId) {
@@ -106,8 +108,8 @@ public class Lobby : NetworkBehaviour
         networkedPlayers.UpdateReady(rpcParams.Receive.SenderClientId, newValue);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void UpdatePlayerNameServerRpc(string newValue, ServerRpcParams rpcParams = default) {
-        networkedPlayers.UpdatePlayerName(rpcParams.Receive.SenderClientId, newValue);
-        }
+    //[ServerRpc(RequireOwnership = false)]
+    //private void UpdatePlayerNameServerRpc(string newValue, ServerRpcParams rpcParams = default) {
+        //networkedPlayers.UpdatePlayerName(rpcParams.Receive.SenderClientId, newValue);
+        //}
     }
