@@ -46,7 +46,7 @@ public class LobbyManager : NetworkBehaviour
     private void StartGame()
     {
         NetworkManager.SceneManager.LoadScene(
-            "Arena1Game",
+            "FinalGame",
             UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
 

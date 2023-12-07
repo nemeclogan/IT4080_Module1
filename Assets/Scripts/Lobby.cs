@@ -60,7 +60,7 @@ public class Lobby : NetworkBehaviour
 
     private void ServerStartClicked() {
         NetworkManager.SceneManager.LoadScene(
-        "Arena1Game",
+        "FinalGame",
         UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
 
